@@ -21,8 +21,8 @@ if(isset($_SESSION['board']))
 {
 
 $board = $_SESSION['board'];
-$work_path="hw";
-$hwlist = array_map('str_getcsv', file("$work_path/hwlist.csv"));
+#$work_path="/mnt/storage/hwfarm";
+$hwlist = array_map('str_getcsv', file("hwlist.csv"));
 foreach($hwlist as $data) {
     if($board == $data[0]) {
 	$_SESSION['uart'] = $data[1];
@@ -43,16 +43,14 @@ if($timeout > 20) $timeout = 20;
 echo("<pre><b>session ID</b>: $sid, <b>board</b>: $board, <b>baudrate</b>: $baudrate bps, <b>timeout</b>: $timeout s</pre>");
 if(isset($_SESSION['input'])) $input = $_SESSION['input'];
 else $input = "expect eof";
-$file = fopen("$work_path/sessions/$sid/input.exp", "w");
-fwrite($file, $input);
-fclose($file);
+exec("printf %s " . escapeshellarg($input) . "| schroot -c hwfarm -d / -- tee /sessions/$sid/input.exp");
 
-exec("lsof \"$uart\"", $output, $retval);
+exec("schroot -c hwfarm -d / -- lsof $uart", $output, $retval);
 if($retval == 1)
 {
     unset($output);
-    exec("cd $work_path/sessions/$sid; UART=$uart timeout 10 make upload 2>&1", $output, $retval);
-    $output = implode("\n", $output);
+    exec("UART=$uart schroot -c hwfarm -d /sessions/$sid timeout 10 make upload 2>&1", $output, $retval);
+    $output = htmlspecialchars(implode("\n", $output));
     if($retval == 0) echo "<hr><p><b>Upload done</b></p>";
     else echo "<hr><p><b>Upload failed</b></p>";
     echo <<<EOF
@@ -64,9 +62,10 @@ if($retval == 1)
     echo "<pre>$output</pre></div></div></div>";
 
     if($retval == 0) {
-        $output = shell_exec("stty -F \"$uart\" \"$baudrate\" cooked");
-        #$output = shell_exec("timeout \"$timeout\" stdbuf -oL cat \"$uart\"");
-        $output = shell_exec("timeout \"$timeout\" stdbuf -oL expect \"$work_path/safe.exp\" \"$uart\" \"$work_path/sessions/$sid/input.exp\" 2>&1");
+        $output = shell_exec("schroot -c hwfarm -d / -- stty -F $uart $baudrate cooked");
+        #$output = shell_exec("schroot -c hwfarm -d / -- timeout $timeout stdbuf -oL cat $uart");
+        $output = shell_exec("schroot -c hwfarm -d /sessions/$sid -- timeout $timeout stdbuf -oL expect /safe.exp $uart input.exp 2>&1");
+        $output = htmlspecialchars($output);
         echo "<hr><p><b>Output</b>:</p><pre>$output</pre>";
     }
 } else echo "<hr><p><b>Board busy</b></p>";

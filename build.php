@@ -31,15 +31,11 @@ $sketch = $_SESSION['sketch'];
 $baudrate = $_SESSION['baudrate'];
 $timeout = $_SESSION['timeout'];
 
-$work_path="hw";
-
 if(isset($sketch))
 {
-    $file = fopen("$work_path/sessions/$sid/sketch.ino", "w");
-    fwrite($file, $sketch);
-    fclose($file);
+    exec("printf %s " . escapeshellarg($sketch) . "| schroot -c hwfarm -d / -- tee /sessions/$sid/sketch.ino");
     unset($output);
-    exec("cd $work_path/sessions/$sid; UART=$uart make 2>&1", $output, $retval);
+    exec("UART=$uart schroot -c hwfarm -d /sessions/$sid -- make 2>&1", $output, $retval);
     $output = implode("\n", $output);
     if($retval == 0) echo "<hr><p><b>Build done</b></p>";
     else echo "<hr><p><b>Build failed</b></p>";
@@ -71,9 +67,7 @@ if($retval == 0) {
     if(isset($_SESSION['input'])) {
         $input = $_SESSION['input'];
     } else {
-        $file = fopen("$work_path/configs/$board/input.exp", "r");
-        $input = fread($file, filesize("$work_path/configs/$board/input.exp"));
-        fclose($file);
+        $input = shell_exec("schroot -c hwfarm -d / -- cat /configs/$board/input.exp");
     }
     echo "<form action=sketch.php method=post><input type=submit value=\"< Edit sketch\"></form></td><td valign=bottom>";
     echo "<form action=run.php method=post>";

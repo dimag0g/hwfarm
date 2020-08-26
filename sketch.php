@@ -16,22 +16,24 @@ if(isset($_SESSION['board'])) {
 
 $board = $_SESSION['board'];
 echo("<pre><b>session ID</b>: $sid, <b>board</b>: $board</pre>");
-$work_path="hw";
-mkdir("$work_path/sessions/$sid");
-mkdir("$work_path/sessions/$sid/build");
-exec("ln -s \"$work_path/configs/$board/build/core\" \"$work_path/sessions/$sid/build\"");
-exec("ln -s \"$work_path/configs/$board/build/libs\" \"$work_path/sessions/$sid/build\"");
-exec("ln -s \"$work_path/configs/$board/build/userlibs\" \"$work_path/sessions/$sid/build\"");
-exec("ln -s \"$work_path/configs/$board/Makefile\" \"$work_path/sessions/$sid\"");
+
+exec("schroot -c hwfarm -d / -- mkdir -p /sessions/$sid");
+exec("schroot -c hwfarm -d / -- mkdir -p /sessions/$sid/build");
+exec("schroot -c hwfarm -d / -- mkdir -p /configs/$board/build");
+exec("schroot -c hwfarm -d / -- mkdir -p /configs/$board/build/core");
+exec("schroot -c hwfarm -d / -- mkdir -p /configs/$board/build/libs");
+exec("schroot -c hwfarm -d / -- mkdir -p /configs/$board/build/userlibs");
+exec("schroot -c hwfarm -d / -- ln -s /configs/$board/build/core /sessions/$sid/build");
+exec("schroot -c hwfarm -d / -- ln -s /configs/$board/build/libs /sessions/$sid/build");
+exec("schroot -c hwfarm -d / -- ln -s /configs/$board/build/userlibs /sessions/$sid/build");
+exec("schroot -c hwfarm -d / -- ln -s /configs/$board/Makefile /sessions/$sid");
 if(isset($_SESSION['sketch']))
 
 {
 
 $sketch = $_SESSION['sketch'];
 } else {
-    $file = fopen("$work_path/configs/$board/sketch.ino", "r");
-    $sketch = fread($file, filesize("$work_path/configs/$board/sketch.ino"));
-    fclose($file);
+    $sketch = shell_exec("schroot -c hwfarm -d / -- cat /configs/$board/sketch.ino");
 }
 
 } else {

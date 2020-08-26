@@ -10,8 +10,7 @@ session_start();
 $sid = session_id();
 echo("<pre><b>session ID</b>: $sid </pre>");
 
-$work_path="hw";
-$hwlist = array_map('str_getcsv', file("$work_path/hwlist.csv"));
+$hwlist = array_map('str_getcsv', file("hwlist.csv"));
 
 ?>
 
