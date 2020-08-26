@@ -1,1 +1,1 @@
-ATmega2560_Serial,/dev/ttyUSB0
+ATmega2560_Serial,/dev/ttyACM0

@@ -4,52 +4,46 @@
 
 ROOT="."
 
-mount_chroot() {
-    for dir in $@ ; do
-        mkdir -p $ROOT/$dir
-        mount --bind -o ro $dir $ROOT/$dir
-    done
-}
+# Bind system directories
+for dir in /lib /bin /usr ; do
+    mkdir -p $ROOT/$dir
+    sudo mount --bind -o ro $dir $ROOT/$dir
+done
 
-mount_chroot /etc/alternatives
-mount_chroot /lib
-mount_chroot /var
-mount_chroot /bin
-mount_chroot /usr
-
+# Create custom /etc
+mkdir -p $ROOT/etc
+mkdir -p $ROOT/etc/alternatives
 cp /etc/avrdude.conf $ROOT/etc
+cp /etc/alternatives/awk $ROOT/etc/alternatives/
 
-#mount --rbind /dev $ROOT/dev
+# Create custom /dev
 mkdir -p $ROOT/dev
 
 [ -f $ROOT/dev/null ] || {
-    mknod $ROOT/dev/null c 1 3
-    chmod 666 $ROOT/dev/null
+    sudo mknod $ROOT/dev/null c 1 3
+    sudo chmod 666 $ROOT/dev/null
 }
 
 [ -f $ROOT/dev/random ] || {
-    mknod $ROOT/dev/random c 1 8
-    chmod 666 $ROOT/dev/random
+    sudo mknod $ROOT/dev/random c 1 8
+    sudo chmod 666 $ROOT/dev/random
 }
 
 [ -f $ROOT/dev/urandom ] || {
-    mknod $ROOT/dev/urandom c 1 9
-    chmod 666 $ROOT/dev/urandom
+    sudo mknod $ROOT/dev/urandom c 1 9
+    sudo chmod 666 $ROOT/dev/urandom
 }
 
 # all serial ports used in hwlist.csv must be exported to chroot
+for dev in /dev/ttyACM0 ; do
+    [ -f $ROOT/$dev ] || {
+        devclass=`echo $dev | head -c-2 | tail -c-5`
+        sudo mknod $ROOT/$dev c `grep $devclass /proc/devices | cut -f1 -d' '` 0
+        sudo chown root:dialout $ROOT/$dev
+        sudo chmod 660 $ROOT/$dev
+    }
+done
 
-mknod_chroot() {
-    for dev in $@ ; do
-	[ -f $ROOT/$dev ] || {
-	    mknod $ROOT/$dev c `grep ttyACM /proc/devices | cut -f1 -d' '` 0
-	    chown root:dialout $ROOT/$dev
-	    chmod 660 $ROOT/$dev
-	}
-    done
-}
-
-mknod_chroot /dev/ttyACM0
-
+# Create custom /tmp
 mkdir -p $ROOT/tmp
-chown -R www-data:www-data $ROOT/tmp
+sudo chmod 666 $ROOT/tmp
