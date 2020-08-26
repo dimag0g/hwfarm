@@ -1,0 +1,31 @@
+#!/usr/bin/expect
+# HW Farm project (c) Dmitry Grigoryev, 2020
+# Released under the terms of GNU AGPLv3
+
+set uart [lindex $argv 0]
+set cmd [lindex $argv 1]
+
+# create a safe interpreter
+interp create -safe untrusted
+
+# provide it with essetial expect functions
+interp alias untrusted send_user {} send_user
+interp alias untrusted send {} send
+interp alias untrusted expect {} expect
+interp alias untrusted interact {} interact
+
+# censor the "spawn" and "open" functions
+proc safe_spawn {args} {
+    puts "restricted spawn"
+}
+interp alias untrusted spawn {} safe_spawn
+proc safe_open {args} {
+    puts "restricted open"
+}
+interp alias untrusted open {} safe_open
+
+# create a safe process to interact with
+spawn -open [open "$uart" w+]
+
+# run unsafe script
+untrusted invokehidden source "$cmd"

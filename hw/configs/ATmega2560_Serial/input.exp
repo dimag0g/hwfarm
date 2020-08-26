@@ -1,0 +1,5 @@
+#!/usr/bin/expect
+expect "setup"
+send "hello"
+expect "loop"
+expect "received: hello"

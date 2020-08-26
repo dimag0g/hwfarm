@@ -1,0 +1,32 @@
+HW Farm project (c) Dmitry Grigoryev, 2020
+Released under the terms of GNU AGPLv3
+
+Usage terms
+
+1. Definitions.
+ The "service" consists in providing remote access to hardware via the website.
+ The "user" is anyone accessing the website providing the service.
+ The "operator" is the person or organisation running the service.
+
+2. Disclamer of warranty.
+ The service is provided "as is". The operator expressely disclaims any
+ warranties, duties and conditions with respect to the provided service,
+ including, but not limited to, claims of quality, absense of defects, and
+ fitness for a purpose. The operator shall not be liable for any losses
+ or damages that arise from using the service, as far as permitted by law.
+
+3. Data protection.
+ The operator does not require users to submit any personal data to use the
+ service, and reserves the right to analyze submitted data for various puposes,
+ including quality improvement and detection of abuse, which may include
+ publishing the data or transmitting it to third parties. Users have the duty
+ of care not to submit any personal data, or data which they have no right or
+ intention to disclose, while using the service.
+
+4. Intended use.
+ The service is provided for the purpose of testing the hardware in its normal
+ operation conditions. Users are not allowed to submit data with the intention
+ to produce physical damage to the hardware or otherwise make it unavailable
+ for other users.
+
+End of usage terms.
