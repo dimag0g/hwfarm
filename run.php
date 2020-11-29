@@ -21,18 +21,17 @@ if(isset($_SESSION['board']))
 {
 
 $board = $_SESSION['board'];
-#$work_path="/mnt/storage/hwfarm";
+$hwroot = trim(shell_exec("schroot -c hwfarm --location"));
+
 $hwlist = array_map('str_getcsv', file("hwlist.csv"));
 foreach($hwlist as $data) {
     if($board == $data[0]) {
-	$_SESSION['uart'] = $data[1];
+        $uart = $data[1];
     }
 }
-
 if(isset($_POST['baudrate'])) $_SESSION['baudrate'] = $_POST['baudrate'];
 if(isset($_POST['timeout'])) $_SESSION['timeout'] = $_POST['timeout'];
 if(isset($_POST['input'])) $_SESSION['input'] = $_POST['input'];
-$uart = $_SESSION['uart'];
 $baudrate = $_SESSION['baudrate'];
 $baudrate = intval($baudrate);
 if($baudrate == 0) $baudrate = 9600;
@@ -40,10 +39,16 @@ $timeout = $_SESSION['timeout'];
 $timeout = intval($timeout);
 if($timeout == 0) $timeout = 10;
 if($timeout > 20) $timeout = 20;
-echo("<pre><b>session ID</b>: $sid, <b>board</b>: $board, <b>baudrate</b>: $baudrate bps, <b>timeout</b>: $timeout s</pre>");
+echo("<pre><b>session ID</b>: $sid");
+echo(", <b>board</b>: $board");
+echo(", <b>baudrate</b>: $baudrate bps");
+echo(", <b>timeout</b>: $timeout s");
+#echo(", <b>uart</b>: $uart</pre>");
+echo("</pre>");
 if(isset($_SESSION['input'])) $input = $_SESSION['input'];
 else $input = "expect eof";
-exec("printf %s " . escapeshellarg($input) . "| schroot -c hwfarm -d / -- tee /sessions/$sid/input.exp");
+
+file_put_contents("$hwroot/sessions/$sid/input.exp", $input);
 
 exec("schroot -c hwfarm -d / -- lsof $uart", $output, $retval);
 if($retval == 1)

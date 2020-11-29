@@ -21,6 +21,8 @@ if(isset($_SESSION['board']))
 {
 
 $board = $_SESSION['board'];
+$hwroot = trim(shell_exec("schroot -c hwfarm --location"));
+
 echo("<pre><b>session ID</b>: $sid, <b>board</b>: $board</pre>");
 if(isset($_POST['baudrate'])) $_SESSION['baudrate'] = $_POST['baudrate'];
 else $_SESSION['baudrate'] = 9600;
@@ -29,11 +31,17 @@ else $_SESSION['timeout'] = 10;
 if(isset($_POST['input'])) $_SESSION['input'] = $_POST['input'];
 $sketch = $_SESSION['sketch'];
 $baudrate = $_SESSION['baudrate'];
+$baudrate = intval($baudrate);
+if($baudrate == 0) $baudrate = 9600;
 $timeout = $_SESSION['timeout'];
+$timeout = intval($timeout);
+if($timeout == 0) $timeout = 10;
+if($timeout > 20) $timeout = 20;
+
 
 if(isset($sketch))
 {
-    exec("printf %s " . escapeshellarg($sketch) . "| schroot -c hwfarm -d / -- tee /sessions/$sid/sketch.ino");
+    file_put_contents("$hwroot/sessions/$sid/sketch.ino", $sketch);
     unset($output);
     exec("UART=$uart schroot -c hwfarm -d /sessions/$sid -- make 2>&1", $output, $retval);
     $output = implode("\n", $output);
@@ -67,7 +75,7 @@ if($retval == 0) {
     if(isset($_SESSION['input'])) {
         $input = $_SESSION['input'];
     } else {
-        $input = shell_exec("schroot -c hwfarm -d / -- cat /configs/$board/input.exp");
+        $input = file_get_contents("$hwroot/configs/$board/input.exp");
     }
     echo "<form action=sketch.php method=post><input type=submit value=\"< Edit sketch\"></form></td><td valign=bottom>";
     echo "<form action=run.php method=post>";

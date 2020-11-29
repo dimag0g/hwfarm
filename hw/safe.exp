@@ -2,6 +2,8 @@
 # HW Farm project (c) Dmitry Grigoryev, 2020
 # Released under the terms of GNU AGPLv3
 
+# Safe wrapper for user-provided expect scripts
+
 set uart [lindex $argv 0]
 set cmd [lindex $argv 1]
 

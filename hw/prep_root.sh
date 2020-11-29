@@ -2,7 +2,9 @@
 # HW Farm project (c) Dmitry Grigoryev, 2020
 # Released under the terms of GNU AGPLv3
 
-ROOT="."
+# Initializes the CHROOT environment. Run at system startup.
+
+ROOT="/chroot/hwfarm"
 
 # Bind system directories
 for dir in /lib /bin /usr ; do

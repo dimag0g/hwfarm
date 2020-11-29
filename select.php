@@ -14,8 +14,8 @@ $hwlist = array_map('str_getcsv', file("hwlist.csv"));
 
 ?>
 
-<hr><table><tr><td>
-<p><b>Board configs</b>:</p>
+<hr><table><tr>
+<td><p><b>Board configs</b>:</p>
 <form action="sketch.php" method="post">
     <select name='board' onchange='this.form.submit()'>
     <option value=''>Select...</option>
@@ -26,8 +26,12 @@ $hwlist = array_map('str_getcsv', file("hwlist.csv"));
     ?>
     </select>
     <noscript><input type="submit" value="Submit"></noscript>
-</form>
-</td></tr></table>
+</form></td>
+<td><p><b>Resume session</b>:</p>
+<form action="resume.php" method="post">
+    <p>Session ID: <input type="text" name="sid" value=""><input type="submit" value="Resume"></p>
+</form></td>
+</tr></table>
 <hr><a href="https://github.com/dimag0g/hwfarm">Project page</a>
 - <a href="terms.txt">Usage terms</a>
 </body></html>

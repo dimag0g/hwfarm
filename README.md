@@ -13,10 +13,16 @@ The PHP files should be placed under webserver's root (typically `/var/www`).
 
 The working directory (`hw`) which holds the hardware configurations
 and compilation results could (and should) be placed elsewhere.
-Its location is defined in `hw/hwfarm.conf`.
+Its location is defined in `hw/hwfarm.conf`, which should be placed in
+`/etc/schroot/chroot.d/`.
 
 Running `hw/setup.sh` should install all necessary packages,
 expect for the web server, which should already be installed.
+
+On Linux it is also recommended to install a recent version of
+Arduino IDE, instead of the one provided by the package manager.
+A custom Arduino IDE location must be specified in `$ARDUINO_DIR`
+variable in every board configuration `Makefile` (see below).
 
 The available hardware is described in `hwlist.csv` which contains
 pairs "config_name","serial_port". Several configurations could be
@@ -38,8 +44,8 @@ existing `Makefile` simply includes `Arduino.mk` which supports these.
 If no input is required, simply logging all data from the serial port
 can be done by a single line, `expect eof`.
 
-Additional Arduino libraries can be installed under `hw/libraries`.
-This location is set up in the `Makefile`.
+Additional Arduino libraries can be installed e.g. under `hw/libraries`.
+Their location must be set in `$USER_LIB_PATH` variable in the `Makefile`.
 
 Finally `hw/sessions` is the directory where all temporary files live.
 
